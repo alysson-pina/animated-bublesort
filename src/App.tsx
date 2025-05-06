@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import bubbleSort from './utils/bubblesort'
+import useGifCapture from './hooks/useGenerateGif';
 
 const initialList = [3, 2, 6, 1, 9, 4, 7, 10, 8, 5];
 const steps = bubbleSort(initialList);
@@ -8,6 +9,10 @@ const steps = bubbleSort(initialList);
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [startAnimate, setStartAnimate] = useState(false);
+  const [myGif, setmyGif] = useState<{ url: string, download: (() => void)} | null>(null);
+
+  const ref = useRef<HTMLDivElement>(null);
+  const captureAnimation = useGifCapture();
 
   const list = steps[currentStep];
 
@@ -28,8 +33,11 @@ export default function App() {
     setStartAnimate(false);
   }
   
-  const handleAnimate = () => {
+  const handleAnimate = async () => {
     setStartAnimate(true);
+    const { url, download } = await captureAnimation(ref);
+    
+    setmyGif({ url, download});
   }
 
   useEffect(() => {
@@ -58,7 +66,7 @@ export default function App() {
   }, [startAnimate])
 
   return (
-    <div className="app">
+    <div className="app" ref={ref}>
       <div className="chart">
         {list.map((val) => (
           <div key={val} style={{ height: `${val * 20}px` }} />
@@ -70,6 +78,7 @@ export default function App() {
         <button onClick={handlePrevious}>Previous</button>
         <button onClick={handleNext}>Next</button>
       </div>
+      {myGif?.url && <div><button onClick={() => myGif.download()}>Download animation</button></div>}
     </div>
   )
 }
