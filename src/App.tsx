@@ -5,11 +5,12 @@ import useGifCapture from './hooks/useGenerateGif';
 
 const initialList = [3, 2, 6, 1, 9, 4, 7, 10, 8, 5];
 const steps = bubbleSort(initialList);
+const TIMEOUT = 200;
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [startAnimate, setStartAnimate] = useState(false);
-  const [myGif, setmyGif] = useState<{ url: string, download: (() => void)} | null>(null);
+  const [myGif, setmyGif] = useState<{ url: string, download: (() => Promise<void>)} | null>(null);
 
   const ref = useRef<HTMLDivElement>(null);
   const captureAnimation = useGifCapture();
@@ -18,19 +19,20 @@ export default function App() {
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(prev => prev +1)
+      setCurrentStep(prev => prev +1);
     }
   }
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1)
+      setCurrentStep(prev => prev - 1);
     }
   }
   
   const handleReset = () => {
-    setCurrentStep(0)
+    setCurrentStep(0);
     setStartAnimate(false);
+    setmyGif(null);
   }
   
   const handleAnimate = async () => {
@@ -38,6 +40,12 @@ export default function App() {
     const { url, download } = await captureAnimation(ref);
     
     setmyGif({ url, download});
+  }
+
+  const handleDownloadButtonClick = async () => {
+    myGif?.download().then(() => {
+      setmyGif(null);
+    })
   }
 
   useEffect(() => {
@@ -58,7 +66,7 @@ export default function App() {
         }
         return prev + 1
       })
-    }, 200)
+    }, TIMEOUT)
     
     return () => {
       clearInterval(interval)  
@@ -78,7 +86,7 @@ export default function App() {
         <button onClick={handlePrevious}>Previous</button>
         <button onClick={handleNext}>Next</button>
       </div>
-      {myGif?.url && <div><button onClick={() => myGif.download()}>Download animation</button></div>}
+      {myGif?.url && <div><button onClick={handleDownloadButtonClick}>Download animation</button></div>}
     </div>
   )
 }

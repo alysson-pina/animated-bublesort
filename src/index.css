@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Gotham A,Gotham B,sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -21,7 +21,6 @@ button {
   border: 1px solid transparent;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
